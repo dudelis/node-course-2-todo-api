@@ -60,7 +60,6 @@ describe('POST /todos', ()=>{
             });
     });
 });
-
 describe('GET /todos', ()=>{
     it('should get all todos', (done)=>{
         request(app)
@@ -91,6 +90,39 @@ describe('GET /todos/:id', ()=>{
     it('should return 404, if _id is not valid', (done)=>{
         request(app)
             .get(`/todos/123`)
+            .expect(404)
+            .end(done);
+    });
+});
+describe('DELETE /todos/:id', ()=>{
+    it('Should remove a todo by id', (done)=>{
+        var id = todos[1]._id;
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .expect((res)=>{
+                expect(res.body.todo.text).toBe(todos[1].text);
+            })
+            .end((err, res)=>{
+                if (err){
+                    return done(err);
+                };
+                Todo.findById(id).then((todo)=>{
+                    expect(todo).toBeFalsy();
+                    done();
+                }).catch((e)=>{done(e)});
+            });
+    });
+    it('Should return 404 if todo not found', (done)=>{
+        var id = new ObjectID().toHexString();
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+    it('Should return 404 if Object Id is invalid', (done)=>{
+        request(app)
+            .delete(`/todos/abc`)
             .expect(404)
             .end(done);
     });

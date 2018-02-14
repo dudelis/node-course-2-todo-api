@@ -4,6 +4,7 @@ const _ = require('lodash');
 const express = require('express');
 const bodyParser  = require('body-parser');
 const {ObjectID} = require('mongodb');
+const bcrypt = require('bcryptjs');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
@@ -100,9 +101,35 @@ app.post('/users', (req,res)=>{
     });
 });
 
-
 app.get('/users/me', authenticate, (req, res)=>{
     res.send(req.user);
+});
+app.post('/users/login', (req, res)=>{
+    var body = _.pick(req.body, ['email', 'password']);
+
+    User.findByCredentials(body.email, body.password).then((user)=>{
+        return user.generateAuthToken().then((token)=>{
+            res.header('x-auth', token).send(user);
+        })
+    }).catch((e)=>{
+        res.status(400).send(e);
+    });
+
+    // User.findOne({email: body.email}).then((user)=>{
+    //     if (!user){
+    //         return res.status(404).send();
+    //     }
+    //     bcrypt.compare(body.password, user.password, (err, check)=>{
+    //         if (err) return res.status(400).send(err);
+    //         if (check){
+    //             res.header('x-auth', user.tokens[0].token).send();
+    //         } else{
+    //             res.status(400).send('Password is incorrect');
+    //         }
+    //     });
+    // }).catch((e)=>{
+    //     res.status(400).send(e);
+    // });
 });
 
 app.listen(port, ()=>{

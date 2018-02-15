@@ -250,3 +250,32 @@ describe('POST /users', ()=>{
             .end(done);
     });
 });
+
+describe('POST /users/login',()=>{
+    it('should return a token if email and password is valid', (done)=>{
+        request(app)
+            .post('/users/login')
+            .send({email: users[1].email, password: users[1].password})
+            .expect(200)
+            .expect((res)=>{
+                expect(res.headers['x-auth']).toBeTruthy();
+                expect(res.body.email).toBe(users[1].email);
+            })
+            .end((err, res)=>{
+                if (err){
+                    return done(err);
+                }
+                User.findById(users[1]._id).then((user)=>{
+                    expect(user.tokens[0].token).toBe(res.headers['x-auth']);
+                    done();
+                }).catch((e)=> done(e));
+            });
+    });
+    it('should return 400, if user credentials do not match', (done)=>{
+        request(app)
+            .post('/users/login')
+            .send({email: users[0].email, password: users[0].password + 1})
+            .expect(400)
+            .end(done);
+    });
+});

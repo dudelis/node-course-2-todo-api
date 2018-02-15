@@ -114,22 +114,6 @@ app.post('/users/login', (req, res)=>{
     }).catch((e)=>{
         res.status(400).send(e);
     });
-
-    // User.findOne({email: body.email}).then((user)=>{
-    //     if (!user){
-    //         return res.status(404).send();
-    //     }
-    //     bcrypt.compare(body.password, user.password, (err, check)=>{
-    //         if (err) return res.status(400).send(err);
-    //         if (check){
-    //             res.header('x-auth', user.tokens[0].token).send();
-    //         } else{
-    //             res.status(400).send('Password is incorrect');
-    //         }
-    //     });
-    // }).catch((e)=>{
-    //     res.status(400).send(e);
-    // });
 });
 
 app.listen(port, ()=>{

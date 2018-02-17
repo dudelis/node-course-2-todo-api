@@ -20,6 +20,10 @@ const users = [{
     _id : userTwoId,
     email: 'administrator123@denallix.ua',
     password: 'userTwoPass',
+    tokens:[{
+        access: 'auth',
+        token: jwt.sign({_id: userTwoId, access: 'auth'}, config.salt).toString()
+    }]
 }];
 
 const todos = [{
